@@ -1,56 +1,85 @@
 const puppet = require('puppeteer')
 
 module.exports = async (username) => {
-  const regexSource = /<img[\w\W]*?alt="([^"]+?)"[\w\W]*?srcset="([^"]+?)"[\w\W]*?>/g
-  const regexUsername = /<h1[\w\W]*?title="([^"]+?)">/g
-  const regexProfilePicture = /<img[\w\W]*?src="([^"]+?)"[\w\W]*?>/
   const browser = await puppet.launch()
   const page = await browser.newPage()
   const user = {}
 
   await page.goto(`https://www.instagram.com/${username}`)
 
-  const content = await page.evaluate(() => document.body.innerHTML)
+  const userBio = await page.evaluate(() => {
+    const element = {}
+    const section = document.body.querySelector('main header section')
+    const subSection = []
 
-  const posts = await content.match(/<img([\w\W]+?)>/gm)
+    section.childNodes.forEach(element => {
+      subSection.push(element.innerText)
+    })
 
-  const mapping = await posts.map(item => {
-    if (item !== '') {
-      const matchSource = regexSource.exec(item)
-
-      if (matchSource) {
-        const images = {}
-        const imageSplit = matchSource[2].split('w,')
-
-        imageSplit.map(item => {
-          const itemSplit = item.split(' ')
-          images[itemSplit[1].replace(/[^\d]/, '')] = itemSplit[0]
-        })
-
-        return {
-          caption: matchSource[1],
-          images: images
-        }
+    subSection.map((item, index) => {
+      if (index === 0) {
+        element['username'] = item.split('\n')[0]
       }
+
+      if (index === 1) {
+        item.split('\n').map(item => {
+          const slice = item.split(' ')
+          element[slice[1]] = slice[0]
+        })
+      }
+
+      if (index === 2) {
+        const slice = item.split('\n')
+        const name = slice[0]
+
+        slice.splice(0, 1)
+
+        const bio = slice.join('\n')
+
+        element['fullName'] = name
+        element['bio'] = bio
+      }
+    })
+
+    return element
+  })
+
+  const userPosts = await page.evaluate(() => {
+    const regexSource = /<img[\w\W]*?alt="([^"]+?)"[\w\W]*?srcset="([^"]+?)"[\w\W]*?>/g
+    const content = document.querySelector('main article').innerHTML
+    const posts = content.match(/<img([\w\W]+?)>/gm)
+
+    try {
+      const mapping = posts.map(item => {
+        if (item !== '') {
+          const matchSource = regexSource.exec(item)
+
+          if (matchSource) {
+            const images = {}
+            const imageSplit = matchSource[2].split('w,')
+
+            imageSplit.map(item => {
+              const itemSplit = item.split(' ')
+              images[itemSplit[1].replace(/[^\d]/, '')] = itemSplit[0]
+            })
+
+            return {
+              caption: matchSource[1],
+              images: images
+            }
+          }
+        }
+      })
+
+      return mapping.filter(item => typeof item !== 'undefined')
+    } catch (error) {
+      return []
     }
   })
 
-  const filter = await mapping.filter(item => typeof item !== 'undefined')
-
-  const getUsername = await regexUsername.exec(content)
-  const getProfilePicture = await regexProfilePicture.exec(content)
-
-  if (getUsername[1]) {
-    user['username'] = getUsername[1]
-  }
-
-  if (getProfilePicture[1]) {
-    user['picture'] = getProfilePicture[1]
-  }
-
   const result = {
-    user: user,
-    posts: filter
+    user: userBio,
+    posts: userPosts
   }
 
   return result
