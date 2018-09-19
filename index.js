@@ -48,34 +48,33 @@ module.exports = async (username) => {
   })
 
   const userPosts = await page.evaluate(() => {
-    const regexSource = /<img[\w\W]*?alt="([^"]+?)"[\w\W]*?srcset="([^"]+?)"[\w\W]*?>/g
-    const content = document.querySelector('main article').innerHTML
-    const posts = content.match(/<img([\w\W]+?)>/gm)
+    const postLink = document.querySelectorAll('main article a')
+    const postContent = document.querySelectorAll('main article img')
 
     try {
-      const mapping = posts.map(item => {
-        if (item !== '') {
-          const matchSource = regexSource.exec(item)
+      const mapping = []
+      postContent.forEach((item, index) => {
+        if (item !== null) {
+          const images = {}
+          const url = postLink[index].getAttribute('href')
+          const caption = item.getAttribute('alt')
+          const imageSplit = item.getAttribute('srcset').split('w,')
+          const hastag = caption.split('#')
 
-          if (matchSource) {
-            const images = {}
-            const imageSplit = matchSource[2].split('w,')
-            const hastag = matchSource[1].split('#')
+          hastag.splice(0,1)
 
-            hastag.splice(0,1)
+          imageSplit.map(item => {
+            const itemSplit = item.split(' ')
+            images[itemSplit[1].replace(/[^\d]/, '')] = itemSplit[0]
+          })
 
-            imageSplit.map(item => {
-              const itemSplit = item.split(' ')
-              images[itemSplit[1].replace(/[^\d]/, '')] = itemSplit[0]
-            })
-
-            return {
-              thumbnail: images['320'],
-              caption: matchSource[1],
-              hastag: hastag.map(item => `#${item.trim()}`),
-              images: images
-            }
-          }
+          mapping.push({
+            url: url,
+            thumbnail: images['320'],
+            caption: caption,
+            hastag: hastag.map(item => `#${item.trim()}`),
+            images: images
+          })
         }
       })
 
