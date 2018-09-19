@@ -2,6 +2,17 @@
 
 📷 Crawl Instagram posts using Google Puppeter
 
+## How to Use
+
+Use `npm install --save igpuppets` to install **Puppets** on your project and then follow below example.
+
+```js
+const crawl = require('igpuppets')
+
+crawl('<username>').then(result => {
+  console.log(result) // result here
+})
+```
 
 ### Example Results
 
