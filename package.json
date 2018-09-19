@@ -1,5 +1,5 @@
 {
-  "name": "puppets",
+  "name": "igpuppets",
   "version": "1.0.0",
   "description": "📷 Crawl Instagram posts using Google Puppeter",
   "main": "index.js",
