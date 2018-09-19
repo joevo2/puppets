@@ -11,6 +11,10 @@ module.exports = async (username) => {
     const section = document.body.querySelector('main header section')
     const subSection = []
 
+    const convert = (string) => {
+      return parseInt(string.replace(/,/g, '').replace(/k/g, '000'))
+    }
+
     section.childNodes.forEach(element => {
       subSection.push(element.innerText)
     })
@@ -23,7 +27,7 @@ module.exports = async (username) => {
       if (index === 1) {
         item.split('\n').map(item => {
           const slice = item.split(' ')
-          element[slice[1]] = slice[0]
+          element[slice[1]] = convert(slice[0])
         })
       }
 
@@ -56,6 +60,9 @@ module.exports = async (username) => {
           if (matchSource) {
             const images = {}
             const imageSplit = matchSource[2].split('w,')
+            const hastag = matchSource[1].split('#')
+
+            hastag.splice(0,1)
 
             imageSplit.map(item => {
               const itemSplit = item.split(' ')
@@ -63,7 +70,9 @@ module.exports = async (username) => {
             })
 
             return {
+              thumbnail: images['320'],
               caption: matchSource[1],
+              hastag: hastag.map(item => `#${item.trim()}`),
               images: images
             }
           }
