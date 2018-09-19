@@ -1,0 +1,15 @@
+{
+  "name": "puppets",
+  "version": "1.0.0",
+  "description": "📷 Scrap Instagram posts using Google Puppeter",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Muhibbudin Suretno <muhibbudinsuretno1@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "puppeteer": "^1.8.0"
+  }
+}
