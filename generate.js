@@ -19,17 +19,17 @@ module.exports = async (username) => {
       const matchSource = regexSource.exec(item)
 
       if (matchSource) {
-        const fooo = {}
+        const images = {}
         const imageSplit = matchSource[2].split('w,')
 
         imageSplit.map(item => {
-          const images = item.split(' ')
-          fooo[images[1]] = images[0]
+          const itemSplit = item.split(' ')
+          images[itemSplit[1].replace(/[^\d]/, '')] = itemSplit[0]
         })
 
         return {
           caption: matchSource[1],
-          images: fooo
+          images: images
         }
       }
     }
