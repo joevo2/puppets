@@ -1,10 +1,12 @@
 const puppet = require('puppeteer')
 
 module.exports = async (username) => {
-  const regexAlt = /<img[\w\W]*?alt="([^"]+?)"[\w\W]*?>/g
-  const regexSource = /<img[\w\W]*?srcset="([^"]+?)"[\w\W]*?>/g
+  const regexSource = /<img[\w\W]*?alt="([^"]+?)"[\w\W]*?srcset="([^"]+?)"[\w\W]*?>/g
+  const regexUsername = /<h1[\w\W]*?title="([^"]+?)">/g
+  const regexProfilePicture = /<img[\w\W]*?src="([^"]+?)"[\w\W]*?>/
   const browser = await puppet.launch()
   const page = await browser.newPage()
+  const user = {}
 
   await page.goto(`https://www.instagram.com/${username}`)
 
@@ -14,12 +16,11 @@ module.exports = async (username) => {
 
   const mapping = await posts.map(item => {
     if (item !== '') {
-      const matchAlt = regexAlt.exec(item)
       const matchSource = regexSource.exec(item)
 
       if (matchSource) {
         const fooo = {}
-        const imageSplit = matchSource[1].split('w,')
+        const imageSplit = matchSource[2].split('w,')
 
         imageSplit.map(item => {
           const images = item.split(' ')
@@ -27,14 +28,30 @@ module.exports = async (username) => {
         })
 
         return {
-          content: matchAlt[1],
-          image: fooo
+          caption: matchSource[1],
+          images: fooo
         }
       }
     }
   })
 
-  const result = await mapping.filter(item => typeof item !== 'undefined')
+  const filter = await mapping.filter(item => typeof item !== 'undefined')
+
+  const getUsername = await regexUsername.exec(content)
+  const getProfilePicture = await regexProfilePicture.exec(content)
+
+  if (getUsername[1]) {
+    user['username'] = getUsername[1]
+  }
+
+  if (getProfilePicture[1]) {
+    user['picture'] = getProfilePicture[1]
+  }
+
+  const result = {
+    user: user,
+    posts: filter
+  }
 
   return result
 }
