@@ -14,6 +14,10 @@ crawl('<username>').then(result => {
 })
 ```
 
+Or, if you want running this software as API. You can **clone this project** and run **npm install** and then run **npm start**.
+
+This project will be run on **port 3300**, so you can crawl on **http://localhost:3300/u/<username>**.
+
 ### Example Results
 
 _Currently this script only can crawl 12 posts_
