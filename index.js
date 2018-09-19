@@ -3,7 +3,6 @@ const puppet = require('puppeteer')
 module.exports = async (username) => {
   const browser = await puppet.launch()
   const page = await browser.newPage()
-  const user = {}
 
   await page.goto(`https://www.instagram.com/${username}`)
 
