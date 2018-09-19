@@ -34,6 +34,7 @@ _Currently this script only can crawl 12 posts_
    },
    "posts":[
       {
+         "url": "/p/Bn5u9Htjptm/?taken-by=orori_id",
          "thumbnail":"https://instagram.fcgk9-1.fna.fbcdn.net/vp/2f956859ae1116392ecddff8895fe4d1/5C3C8C92/t51.2885-15/e35/s320x320/40954269_321470511944803_611239412123048484_n.jpg",
          "caption":"Punya desain cincin impian yang ingin diwujudkan? Anda bisa lho memesan perhiasan custom di ORORI, lho! Siapkan desain perhiasan impian Anda, infokan ke tim sales kami dan tunggu hingga proses produksi selesai. Cincin dengan desain impian pun bukan lagi wacana, bukan? [code: Custom Ring]\n-\n-\n-\n#ORORICustomRing #ORORIWomensRing #cincinberlian #cincincustom #cincinemas #cincintunangan #cincinunik #diamondring #engagementring #diamondring #customring #whitegoldring #orori #orori_id #jewelleryindonesia",
          "hastag":[
