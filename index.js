@@ -1,17 +1,57 @@
-const express = require('express')
-const scrap = require('./generate')
-const app = express()
-const port = 3300
+const puppet = require('puppeteer')
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+module.exports = async (username) => {
+  const regexSource = /<img[\w\W]*?alt="([^"]+?)"[\w\W]*?srcset="([^"]+?)"[\w\W]*?>/g
+  const regexUsername = /<h1[\w\W]*?title="([^"]+?)">/g
+  const regexProfilePicture = /<img[\w\W]*?src="([^"]+?)"[\w\W]*?>/
+  const browser = await puppet.launch()
+  const page = await browser.newPage()
+  const user = {}
 
-app.get('/u/:username', async (req, res) => {
-  const { username } = req.params
-  const result = await scrap(username)
+  await page.goto(`https://www.instagram.com/${username}`)
 
-  res.json(result)
-})
+  const content = await page.evaluate(() => document.body.innerHTML)
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+  const posts = await content.match(/<img([\w\W]+?)>/gm)
+
+  const mapping = await posts.map(item => {
+    if (item !== '') {
+      const matchSource = regexSource.exec(item)
+
+      if (matchSource) {
+        const images = {}
+        const imageSplit = matchSource[2].split('w,')
+
+        imageSplit.map(item => {
+          const itemSplit = item.split(' ')
+          images[itemSplit[1].replace(/[^\d]/, '')] = itemSplit[0]
+        })
+
+        return {
+          caption: matchSource[1],
+          images: images
+        }
+      }
+    }
+  })
+
+  const filter = await mapping.filter(item => typeof item !== 'undefined')
+
+  const getUsername = await regexUsername.exec(content)
+  const getProfilePicture = await regexProfilePicture.exec(content)
+
+  if (getUsername[1]) {
+    user['username'] = getUsername[1]
+  }
+
+  if (getProfilePicture[1]) {
+    user['picture'] = getProfilePicture[1]
+  }
+
+  const result = {
+    user: user,
+    posts: filter
+  }
+
+  return result
+}
